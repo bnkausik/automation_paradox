@@ -13,6 +13,7 @@ import statsmodels.api as sm
 #revision of April 7 2025 via Taylor series OLS
 #convert all currency into euros;
 #ordinary least squares with clustering standard error
+#apply a numeraire to the capital-labor ratio
 #treats the US separately, and all others as a pool
 ####################################################
 
@@ -35,8 +36,10 @@ for i in range (0,len(opts)):
 print("plot_flag", plot_flag)
 print("error_flag", error_flag)
 
-k_factor = 1.0e-1
-print("robustness check factor for capital-labor ratio units", k_factor)
+numeraire = 0.1
+numeraire = 10.0
+numeraire = 1.3
+print("numeraire", numeraire)
 
 
 k=0
@@ -98,10 +101,10 @@ for c in range(0,n_country-1):
     xdata[c_s:c_e,3] *= fact
     xdata[c_s:c_e,4] *= fact
 
-#robustness check factor for capital_labor ratio units
+#numeraire for capital_labor ratio units
 #added Nov 13, 2026
-xdata[:,3] *= k_factor
-xdata[:,4] *= k_factor
+xdata[:,3] /= numeraire
+xdata[:,4] /= numeraire
 
 
 
@@ -109,8 +112,10 @@ xdata[:,4] *= k_factor
 ls=xdata[:,5] # labor share
 k=xdata[:,4]   #capital to labor ratio
 print("Pool mink, meank, maxk", np.min(k[:c_end[n_country-2]]),np.mean(k[:c_end[n_country-2]]),np.max(k[:c_end[n_country-2]]))
+print("Pool ln mink", np.log(np.min(k[:c_end[n_country-2]])))
 c_s=c_start[n_country-1];c_e =c_end[n_country-1]
 print("US mink, meank, maxk", np.min(k[c_s:c_e]),np.mean(k[c_s:c_e]),np.max(k[c_s:c_e]))
+print("US log mink", np.log(np.min(k[c_s:c_e])))
 
 #regression LHS
 log_out=np.log(xdata[:,3]/xdata[:,1]) - (1-ls)*np.log(k)
